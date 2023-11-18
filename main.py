@@ -4,6 +4,7 @@ import csv
 from dataclasses import dataclass
 from enum import Enum
 import sys
+from typing import Iterable, Self
 
 
 class Gender(Enum):
@@ -19,20 +20,37 @@ class Person:
     mother: "Person | None" = None
     father: "Person | None" = None
 
+    def __str__(self) -> str:
+        return f"{self.last_name}, {self.first_name} ({self.gender.name})"
+
+
+@dataclass
+class Family:
+    members: dict[str, Person]
+
+    @classmethod
+    def from_csv(cls, csv_file: Iterable[str]) -> Self:
+        graph = {
+            id_: (Person(first_name, last_name, Gender[gender]), mother_id, father_id)
+            for (
+                id_,
+                first_name,
+                last_name,
+                gender,
+                mother_id,
+                father_id,
+            ) in csv.reader(csv_file)
+        }
+        for person, mother_id, father_id in graph.values():
+            person.mother = graph[mother_id][0] if mother_id != "" else None
+            person.father = graph[father_id][0] if father_id != "" else None
+
+        return cls({id_: person for id_, (person, _, _) in graph.items()})
+
 
 def main():
-    graph = {
-        id_: (Person(first_name, last_name, Gender[gender]), mother_id, father_id)
-        for (id_, first_name, last_name, gender, mother_id, father_id) in csv.reader(
-            sys.stdin
-        )
-    }
-    for person, mother_id, father_id in graph.values():
-        person.mother = graph[mother_id][0] if mother_id != "" else None
-        person.father = graph[father_id][0] if father_id != "" else None
-    people = {id: person for id, (person, _, _) in graph.items()}
-
-    for person in people.values():
+    family = Family.from_csv(sys.stdin)
+    for person in family.members.values():
         print(person)
 
 
