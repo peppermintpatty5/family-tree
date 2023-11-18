@@ -47,11 +47,29 @@ class Family:
 
         return cls({id_: person for id_, (person, _, _) in graph.items()})
 
+    def is_valid(self) -> bool:
+        """
+        A family graph is valid if the following conditions are met:
+        - All fathers are male
+        - All mothers are female
+        """
+        return all(
+            person.father.gender is Gender.MALE
+            for person in self.members.values()
+            if person.father is not None
+        ) and all(
+            person.mother.gender is Gender.FEMALE
+            for person in self.members.values()
+            if person.mother is not None
+        )
+
 
 def main():
     family = Family.from_csv(sys.stdin)
-    for person in family.members.values():
-        print(person)
+
+    if family.is_valid():
+        for person in family.members.values():
+            print(person)
 
 
 if __name__ == "__main__":
