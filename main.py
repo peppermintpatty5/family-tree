@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections import deque
 import csv
 from dataclasses import dataclass
 from enum import Enum
@@ -22,6 +23,35 @@ class Person:
 
     def __str__(self) -> str:
         return f"{self.last_name}, {self.first_name} ({self.gender.name})"
+
+    def get_distance(self, other: "Person") -> tuple[int, int] | None:
+        queue1: deque[tuple[Person, int]] = deque([(self, 0)])
+        queue2: deque[tuple[Person, int]] = deque([(other, 0)])
+        visited: dict[int, int] = {}
+
+        while queue1 or queue2:
+            if queue1:
+                person, depth = queue1.popleft()
+                if id(person) in visited:
+                    return (depth, visited[id(person)])
+
+                visited[id(person)] = depth
+                if person.mother is not None:
+                    queue1.append((person.mother, depth + 1))
+                if person.father is not None:
+                    queue1.append((person.father, depth + 1))
+            if queue2:
+                person, depth = queue2.popleft()
+                if id(person) in visited:
+                    return (visited[id(person)], depth)
+
+                visited[id(person)] = depth
+                if person.mother is not None:
+                    queue2.append((person.mother, depth + 1))
+                if person.father is not None:
+                    queue2.append((person.father, depth + 1))
+
+        return None
 
 
 @dataclass
@@ -68,8 +98,13 @@ def main():
     family = Family.from_csv(sys.stdin)
 
     if family.is_valid():
-        for person in family.members.values():
-            print(person)
+        for person1 in family.members.values():
+            for person2 in family.members.values():
+                print(
+                    person1,
+                    person2,
+                    person1.get_distance(person2),
+                )
 
 
 if __name__ == "__main__":
