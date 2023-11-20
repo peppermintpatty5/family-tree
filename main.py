@@ -4,6 +4,7 @@ from collections import deque
 import csv
 from dataclasses import dataclass
 from enum import Enum
+from itertools import product
 import sys
 from typing import Iterable, Self
 
@@ -54,6 +55,38 @@ class Person:
         return None
 
 
+class Relationship:
+    @staticmethod
+    def get_description(pair: tuple[int, int] | None) -> str:
+        match pair:
+            case None:
+                return "unrelated"
+            case (0, 0):
+                return "self"
+            case (0, 1):
+                return "child"
+            case (0, 2):
+                return "grandchild"
+            case (0, 3):
+                return "great grandchild"
+            case (1, 0):
+                return "parent"
+            case (1, 1):
+                return "sibling"
+            case (1, 2):
+                return "niece/nephew"
+            case (2, 0):
+                return "grandparent"
+            case (2, 1):
+                return "aunt/uncle"
+            case (2, 2):
+                return "cousin"
+            case (3, 0):
+                return "great grandparent"
+            case _:
+                return ""
+
+
 @dataclass
 class Family:
     members: dict[str, Person]
@@ -98,13 +131,17 @@ def main():
     family = Family.from_csv(sys.stdin)
 
     if family.is_valid():
-        for person1 in family.members.values():
-            for person2 in family.members.values():
-                print(
-                    person1,
-                    person2,
-                    person1.get_distance(person2),
-                )
+        table = [
+            (
+                f"{person1.first_name} {person1.last_name}",
+                f"{person2.first_name} {person2.last_name}",
+                Relationship.get_description(person1.get_distance(person2)),
+            )
+            for person1, person2 in product(family.members.values(), repeat=2)
+        ]
+
+        for row in table:
+            print("\t".join(row))
 
 
 if __name__ == "__main__":
