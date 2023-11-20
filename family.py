@@ -16,50 +16,52 @@ class Gender(Enum):
 
 @dataclass
 class Person:
+    id: int
     first_name: str
     last_name: str
     gender: Gender
     mother: "Person | None" = None
     father: "Person | None" = None
 
-    def __str__(self) -> str:
-        return f"{self.last_name}, {self.first_name} ({self.gender.name})"
 
-    def get_distance(self, other: "Person") -> tuple[int, int] | None:
-        queue1: deque[tuple[Person, int]] = deque([(self, 0)])
-        queue2: deque[tuple[Person, int]] = deque([(other, 0)])
+@dataclass
+class Relationship:
+    up: int
+    down: int
+
+    @classmethod
+    def of(cls, person1: Person, person2: Person) -> Self:
+        queue1: deque[tuple[Person, int]] = deque([(person1, 0)])
+        queue2: deque[tuple[Person, int]] = deque([(person2, 0)])
         visited: dict[int, int] = {}
 
         while queue1 or queue2:
             if queue1:
                 person, depth = queue1.popleft()
-                if id(person) in visited:
-                    return (depth, visited[id(person)])
+                if person.id in visited:
+                    return cls(depth, visited[person.id])
 
-                visited[id(person)] = depth
+                visited[person.id] = depth
                 if person.mother is not None:
                     queue1.append((person.mother, depth + 1))
                 if person.father is not None:
                     queue1.append((person.father, depth + 1))
             if queue2:
                 person, depth = queue2.popleft()
-                if id(person) in visited:
-                    return (visited[id(person)], depth)
+                if person.id in visited:
+                    return cls(visited[person.id], depth)
 
-                visited[id(person)] = depth
+                visited[person.id] = depth
                 if person.mother is not None:
                     queue2.append((person.mother, depth + 1))
                 if person.father is not None:
                     queue2.append((person.father, depth + 1))
 
-        return None
+        return cls(-1, -1)
 
-
-class Relationship:
-    @staticmethod
-    def get_description(pair: tuple[int, int] | None) -> str:
-        match pair:
-            case None:
+    def get_description(self) -> str:
+        match (self.up, self.down):
+            case (x, y) if x < 0 and y < 0:
                 return "unrelated"
             case (0, 0):
                 return "self"
@@ -89,14 +91,18 @@ class Relationship:
 
 @dataclass
 class Family:
-    members: dict[str, Person]
+    members: dict[int, Person]
 
     @classmethod
     def from_csv(cls, csv_file: Iterable[str]) -> Self:
         graph = {
-            id_: (Person(first_name, last_name, Gender[gender]), mother_id, father_id)
+            int(id, base=16): (
+                Person(int(id, base=16), first_name, last_name, Gender[gender]),
+                int(mother_id, base=16) if mother_id != "" else None,
+                int(father_id, base=16) if father_id != "" else None,
+            )
             for (
-                id_,
+                id,
                 first_name,
                 last_name,
                 gender,
@@ -105,10 +111,10 @@ class Family:
             ) in csv.reader(csv_file)
         }
         for person, mother_id, father_id in graph.values():
-            person.mother = graph[mother_id][0] if mother_id != "" else None
-            person.father = graph[father_id][0] if father_id != "" else None
+            person.mother = graph[mother_id][0] if mother_id is not None else None
+            person.father = graph[father_id][0] if father_id is not None else None
 
-        return cls({id_: person for id_, (person, _, _) in graph.items()})
+        return cls({person.id: person for person, _, _ in graph.values()})
 
     def is_valid(self) -> bool:
         """

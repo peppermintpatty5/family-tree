@@ -12,7 +12,7 @@ if family.is_valid():
         (
             f"{person1.first_name} {person1.last_name}",
             f"{person2.first_name} {person2.last_name}",
-            Relationship.get_description(person1.get_distance(person2)),
+            Relationship.of(person1, person2).get_description(),
         )
         for person1, person2 in product(family.members.values(), repeat=2)
     ]
