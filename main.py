@@ -1,7 +1,21 @@
 #!/usr/bin/env python3
 
-from family import Relationship
+import sys
+from family import Family, Relationship
 
-table = [[Relationship(up, down, None).label() for up in range(6)] for down in range(6)]
-for row in table:
-    print("\t".join(row))
+family = Family.from_csv(sys.stdin)
+relationships = (
+    Relationship.of(person1, person2)
+    for person1 in family.members.values()
+    for person2 in family.members.values()
+)
+for r in relationships:
+    print(
+        "\t".join(
+            [
+                f"{r.person1.first_name} {r.person1.last_name}",
+                f"{r.person2.first_name} {r.person2.last_name}",
+                r.label(),
+            ]
+        )
+    )

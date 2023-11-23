@@ -27,6 +27,9 @@ class Person:
     mother: "Person | None" = None
     father: "Person | None" = None
 
+    def __repr__(self) -> str:
+        return f"{self.first_name} {self.last_name} ({self.gender.name})"
+
 
 class BaseRelative(Enum):
     """
@@ -71,39 +74,79 @@ class Relationship:
     `(2, 1)`, uniquely represents the aunt/uncle relationship.
     """
 
+    person1: Person
+    person2: Person
     up: int
     down: int
-    gender: Gender | None
+    half: bool = False
 
     @classmethod
     def of(cls, person1: Person, person2: Person) -> Self:
+        """
+        Determine the relationship of two people by performing a breadth-first search of
+        both persons' ancestors.
+        """
+        if person1 is person2:
+            return cls(person1, person2, 0, 0)
+
         queue1: deque[tuple[Person, int]] = deque([(person1, 0)])
         queue2: deque[tuple[Person, int]] = deque([(person2, 0)])
         visited: dict[int, int] = {}
 
         while queue1 or queue2:
             if queue1:
-                person, depth = queue1.popleft()
-                if person.id in visited:
-                    return cls(depth, visited[person.id], person2.gender)
+                a, depth = queue1.popleft()
 
-                visited[person.id] = depth
-                if person.mother is not None:
-                    queue1.append((person.mother, depth + 1))
-                if person.father is not None:
-                    queue1.append((person.father, depth + 1))
+                if a.mother is person2 or a.father is person2:
+                    return cls(person1, person2, depth + 1, 0)
+
+                mother_depth, father_depth = (
+                    visited.get(a.mother.id, -1) if a.mother is not None else -1,
+                    visited.get(a.father.id, -1) if a.father is not None else -1,
+                )
+                if mother_depth >= 0 or father_depth >= 0:
+                    return cls(
+                        person1,
+                        person2,
+                        depth + 1,
+                        max(mother_depth, father_depth),
+                        half=mother_depth < 0 or father_depth < 0,
+                    )
+
+                if a.mother is not None:
+                    queue1.append((a.mother, depth + 1))
+                    visited[a.mother.id] = depth + 1
+                if a.father is not None:
+                    queue1.append((a.father, depth + 1))
+                    visited[a.father.id] = depth + 1
+
             if queue2:
-                person, depth = queue2.popleft()
-                if person.id in visited:
-                    return cls(visited[person.id], depth, person2.gender)
+                a, depth = queue2.popleft()
 
-                visited[person.id] = depth
-                if person.mother is not None:
-                    queue2.append((person.mother, depth + 1))
-                if person.father is not None:
-                    queue2.append((person.father, depth + 1))
+                if a.mother is person1 or a.father is person1:
+                    return cls(person1, person2, 0, depth + 1)
 
-        return cls(-1, -1, person2.gender)
+                mother_depth, father_depth = (
+                    visited.get(a.mother.id, -1) if a.mother is not None else -1,
+                    visited.get(a.father.id, -1) if a.father is not None else -1,
+                )
+                if mother_depth >= 0 or father_depth >= 0:
+                    return cls(
+                        person1,
+                        person2,
+                        max(mother_depth, father_depth),
+                        depth + 1,
+                        half=mother_depth < 0 or father_depth < 0,
+                    )
+
+                if a.mother is not None:
+                    queue2.append((a.mother, depth + 1))
+                    visited[a.mother.id] = depth + 1
+                if a.father is not None:
+                    queue2.append((a.father, depth + 1))
+                    visited[a.father.id] = depth + 1
+
+        return cls(person1, person2, -1, -1)
 
     def label(self) -> str:
         R = BaseRelative  # less typing
@@ -130,7 +173,7 @@ class Relationship:
                 return f"{times} removed"
             return ""
 
-        g = self.gender
+        g = self.person2.gender
         match self.up, self.down:
             case (up, down) if up < 0 or down < 0:
                 label = "unrelated"
@@ -143,15 +186,11 @@ class Relationship:
             case (up, 0):
                 label = f"{great(up - 2)} {R.GRANDPARENT.label(g)}"
             case (up, 1):
-                label = (
-                    f"{great(max(1, up - 3))}{" grand" * (up > 3)} {R.AUNT_OR_UNCLE.label(g)}"
-                )
+                label = f"{great(max(1, up - 3))}{' grand' * (up > 3)} {R.AUNT_OR_UNCLE.label(g)}"
             case (up, down):
-                label = (
-                    f"{_ordinal(min(up, down) - 1)} {R.COUSIN.label(g)} {removed(abs(up - down))}"
-                )
+                label = f"{_ordinal(min(up, down) - 1)} {R.COUSIN.label(g)} {removed(abs(up - down))}"
 
-        return label.strip()
+        return ("half " if self.half else "") + label.strip()
 
 
 @dataclass
