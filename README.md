@@ -21,7 +21,7 @@ Biologically speaking, every person has a mother and father. Therefore a family 
 | `e049` | Selma       | Bouvier   | :female_sign: | `c069` | `b72b` |
 
 > [!NOTE]
-> I have opted to use "random" hex IDs instead of row indices. This eliminates the dilemma of which person to list first as row ordering becomes inconsequential.
+> I have used "random" hex IDs rather than sequential IDs so that no person appears more important than another.
 
 ## Relationship diagram
 
