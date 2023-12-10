@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage[a4paper, margin=0.5in]{geometry}
+\usepackage[letterpaper, margin=0.5in]{geometry}
 \usepackage[super]{nth}
 \usepackage{tikz}
 
@@ -10,19 +10,19 @@
 \thispagestyle{empty}
 \tikzset{
     block/.style = {
-            draw, rectangle, text width=1.8cm, align=center, minimum height=1.45cm},
+            draw, rectangle, text width=5.4em, align=center, minimum height=4.2em},
 }
 
 \begin{figure}
     \centering
     \begin{tikzpicture}
-        \def\gx{0.2cm}
-        \def\gy{0.6cm}
+        \def\gx{0.75em}
+        \def\gy{1em}
 
-        \node [text width=1.5cm, align=center, anchor=west] (origin)
+        \node [text width=4.2em, align=center, anchor=west] (origin)
         {\textsc{You are here}};
 
-        \node [rectangle, text width=12cm, anchor=north west] at (0, 13.5)
+        \node [text width=12cm, anchor=north west] at (0, 12.5)
         {
             The relationship in each box is what that person's relationship would be to you, where you are ``Self.''
             As you can see, you, your siblings, your \nth{1} cousins, \nth{2} cousins, etc., are all in the same generation.
@@ -35,7 +35,7 @@
         };
 
         % self
-        \node [block, right=0.5cm of origin] (u0d0) {\Large{\textbf{Self}}};
+        \node [block, right=1.5em of origin] (u0d0) {\Large{\textbf{Self}}};
         \draw [very thick, -stealth] (origin) -- (u0d0);
 
         % sibling and cousins
@@ -64,7 +64,7 @@
             evaluate=\i as \D using int(\i+1),
         ] \label in {
                 Niece or Nephew, Grand Niece or Nephew, Great Grand Nephew,
-                \small{Great Great Grand Niece}, \nth{3} Great Grand Nephew
+                Great Great Grand Niece, \nth{3} Great Grand Nephew
             } {
                 \node [block, below=\gy of u1d\d] (u1d\D) {\label};
                 \draw (u1d\d) -- (u1d\D);
@@ -123,11 +123,11 @@
             count=\b,
             evaluate=\b as \a using int(\b-1),
         ] \label in {
-                Parent, Grand-parent, Great Grandparent, \small{Great Great Grandparent},
+                Parent, Grand-parent, Great Grandparent, Great Great Grandparent,
                 \nth{3} Great Grandparent, \nth{4} Great Grandparent
             } {
                 \node [block, above=\gy of $(u\a d0.north)!0.5!(u\b d1.north)$] (u\b d0) {\label};
-                \coordinate [below=0.3cm of u\b d0.south] (a\a);
+                \coordinate [below=0.5em of u\b d0.south] (a\a);
                 \draw (u\b d0) -- (a\a);
                 \draw (a\a) -| (u\a d0);
                 \draw (a\a) -| (u\b d1);
