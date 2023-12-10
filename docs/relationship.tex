@@ -1,5 +1,6 @@
 \documentclass{article}
-\usepackage[letterpaper, margin=0.5in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper, margin=0.25in]{geometry}
 \usepackage[super]{nth}
 \usepackage{tikz}
 
@@ -10,19 +11,19 @@
 \thispagestyle{empty}
 \tikzset{
     block/.style = {
-            draw, rectangle, text width=5.4em, align=center, minimum height=4.2em},
+            draw, rectangle, thick, text width=5.4em, align=center, minimum height=4.2em},
 }
 
 \begin{figure}
     \centering
     \begin{tikzpicture}
         \def\gx{0.75em}
-        \def\gy{1em}
+        \def\gy{3ex}
 
         \node [text width=4.2em, align=center, anchor=west] (origin)
         {\textsc{You are here}};
 
-        \node [text width=12cm, anchor=north west] at (0, 12.5)
+        \node [text width=12cm, anchor=north west] at (0, 13)
         {
             The relationship in each box is what that person's relationship would be to you, where you are ``Self.''
             As you can see, you, your siblings, your \nth{1} cousins, \nth{2} cousins, etc., are all in the same generation.
@@ -54,7 +55,7 @@
                 \nth{3} Great Grandchild, \nth{4} Great Grandchild
             } {
                 \node [block, below=\gy of u0d\d] (u0d\D) {\label};
-                \draw (u0d\d) -- (u0d\D);
+                \draw [thick] (u0d\d) -- (u0d\D);
             }
 
         % nieces / nephews
@@ -67,7 +68,7 @@
                 Great Great Grand Niece, \nth{3} Great Grand Nephew
             } {
                 \node [block, below=\gy of u1d\d] (u1d\D) {\label};
-                \draw (u1d\d) -- (u1d\D);
+                \draw [thick] (u1d\d) -- (u1d\D);
             }
 
         % removed cousins
@@ -99,7 +100,7 @@
         \node [block, above=\gy of u5d3] (u5d2) {\nth{1} Cousin thrice removed};
         \node [block, above=\gy of u6d3] (u6d2) {\nth{1} Cousin 4 times removed};
 
-        \draw
+        \draw [thick]
         (u2d2) -- (u2d3) -- (u2d4) -- (u2d5) -- (u2d6)
         (u3d2) -- (u3d3) -- (u3d4) -- (u3d5) -- (u3d6)
         (u4d2) -- (u4d3) -- (u4d4) -- (u4d5) -- (u4d6)
@@ -115,7 +116,7 @@
                 Great Great Grand Aunt, \nth{3} Great Grand Uncle
             } {
                 \node [block, above=\gy of u\u d2] (u\u d1) {\label};
-                \draw (u\u d1) -- (u\u d2);
+                \draw [thick] (u\u d1) -- (u\u d2);
             }
 
         % parents
@@ -127,11 +128,19 @@
                 \nth{3} Great Grandparent, \nth{4} Great Grandparent
             } {
                 \node [block, above=\gy of $(u\a d0.north)!0.5!(u\b d1.north)$] (u\b d0) {\label};
-                \coordinate [below=0.5em of u\b d0.south] (a\a);
-                \draw (u\b d0) -- (a\a);
-                \draw (a\a) -| (u\a d0);
-                \draw (a\a) -| (u\b d1);
+                \coordinate [below=1.5ex of u\b d0.south] (a\a);
+                \draw [thick] (u\b d0) -- (a\a);
+                \draw [thick] (a\a) -| (u\a d0);
+                \draw [thick] (a\a) -| (u\b d1);
             }
+
+        % extra dotted lines
+        \foreach \i in {0,...,6} {
+                \coordinate [below=\gy of u\i d6.south] (x\i);
+                \draw [thick, dotted] (u\i d6) -- (x\i);
+            }
+        \coordinate [above=1.5ex of u6d0.north] (y0);
+        \draw [thick, dotted] (u6d0.north) -- (y0);
     \end{tikzpicture}
 \end{figure}
 \end{document}
