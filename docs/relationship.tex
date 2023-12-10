@@ -13,37 +13,6 @@
             draw, rectangle, text width=1.8cm, align=center, minimum height=1.45cm},
 }
 
-\def\children{{
-            "Child",
-            "Grandchild",
-            "Great Grandchild",
-            "Great Great Grandchild",
-            "\nth{3} Great Grandchild",
-            "\nth{4} Great Grandchild",
-        }}
-\def\nieces{{
-            "Niece or Nephew",
-            "Grand Niece or Nephew",
-            "Great Grand Nephew",
-            "\small{Great Great Grand Niece}",
-            "\nth{3} Great Grand Nephew",
-        }}
-\def\parents{{
-            "Parent",
-            "Grand-parent",
-            "Great Grandparent",
-            "\small{Great Great Grandparent}",
-            "\nth{3} Great Grandparent",
-            "\nth{4} Great Grandparent",
-        }}
-\def\aunts{{
-            "Aunt or Uncle",
-            "Great Aunt or Uncle",
-            "\small{Great Great Grand Aunt}",
-            "Great Grand Uncle",
-            "\nth{3} Great Grand Uncle",
-        }}
-
 \begin{figure}
     \centering
     \begin{tikzpicture}
@@ -77,19 +46,27 @@
 
         % children
         \foreach [
-            evaluate=\i as \d using int(\i+0),
-            evaluate=\i as \D using int(\i+1),
-        ] \i in {0,...,5} {
-                \node [block, below=\gy of u0d\d] (u0d\D) {\pgfmathparse{\children[\i]}\pgfmathresult};
+            count=\i,
+            evaluate=\i as \d using int(\i-1),
+            evaluate=\i as \D using int(\i),
+        ] \label in {
+                Child, Grandchild, Great Grandchild, Great Great Grandchild,
+                \nth{3} Great Grandchild, \nth{4} Great Grandchild
+            } {
+                \node [block, below=\gy of u0d\d] (u0d\D) {\label};
                 \draw (u0d\d) -- (u0d\D);
             }
 
         % nieces / nephews
         \foreach [
-            evaluate=\i as \d using int(\i+1),
-            evaluate=\i as \D using int(\i+2),
-        ] \i in {0,...,4} {
-                \node [block, below=\gy of u1d\d] (u1d\D) {\pgfmathparse{\nieces[\i]}\pgfmathresult};
+            count=\i,
+            evaluate=\i as \d using int(\i+0),
+            evaluate=\i as \D using int(\i+1),
+        ] \label in {
+                Niece or Nephew, Grand Niece or Nephew, Great Grand Nephew,
+                \small{Great Great Grand Niece}, \nth{3} Great Grand Nephew
+            } {
+                \node [block, below=\gy of u1d\d] (u1d\D) {\label};
                 \draw (u1d\d) -- (u1d\D);
             }
 
@@ -131,17 +108,25 @@
 
         % aunts / uncles
         \foreach [
-            evaluate=\i as \u using int(\i+2),
-        ] \i in {0,...,4} {
-                \node [block, above=\gy of u\u d2] (u\u d1) {\pgfmathparse{\aunts[\i]}\pgfmathresult};
+            count=\i,
+            evaluate=\i as \u using int(\i+1),
+        ] \label in {
+                Aunt or Uncle, Great Aunt or Uncle, \small{Great Great Grand Aunt},
+                Great Grand Uncle, \nth{3} Great Grand Uncle
+            } {
+                \node [block, above=\gy of u\u d2] (u\u d1) {\label};
                 \draw (u\u d1) -- (u\u d2);
             }
 
         % parents
         \foreach [
-            evaluate=\a as \b using int(\a+1),
-        ] \a in {0,...,5} {
-                \node [block, above=\gy of $(u\a d0.north)!0.5!(u\b d1.north)$] (u\b d0) {\pgfmathparse{\parents[\a]}\pgfmathresult};
+            count=\b,
+            evaluate=\b as \a using int(\b-1),
+        ] \label in {
+                Parent, Grand-parent, Great Grandparent, \small{Great Great Grandparent},
+                \nth{3} Great Grandparent, \nth{4} Great Grandparent
+            } {
+                \node [block, above=\gy of $(u\a d0.north)!0.5!(u\b d1.north)$] (u\b d0) {\label};
                 \coordinate [below=0.3cm of u\b d0.south] (a\a);
                 \draw (u\b d0) -- (a\a);
                 \draw (a\a) -| (u\a d0);
