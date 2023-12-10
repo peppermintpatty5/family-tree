@@ -11,8 +11,38 @@
 \tikzset{
     block/.style = {
             draw, rectangle, text width=1.8cm, align=center, minimum height=1.45cm},
-    arr/.style = {draw=blue!50, ultra thick},
 }
+
+\def\children{{
+            "Child",
+            "Grandchild",
+            "Great Grandchild",
+            "Great Great Grandchild",
+            "\nth{3} Great Grandchild",
+            "\nth{4} Great Grandchild",
+        }}
+\def\nieces{{
+            "Niece or Nephew",
+            "Grand Niece or Nephew",
+            "Great Grand Nephew",
+            "\small{Great Great Grand Niece}",
+            "\nth{3} Great Grand Nephew",
+        }}
+\def\parents{{
+            "Parent",
+            "Grand-parent",
+            "Great Grandparent",
+            "\small{Great Great Grandparent}",
+            "\nth{3} Great Grandparent",
+            "\nth{4} Great Grandparent",
+        }}
+\def\aunts{{
+            "Aunt or Uncle",
+            "Great Aunt or Uncle",
+            "\small{Great Great Grand Aunt}",
+            "Great Grand Uncle",
+            "\nth{3} Great Grand Uncle",
+        }}
 
 \begin{figure}
     \centering
@@ -35,129 +65,88 @@
             \end{flushright}
         };
 
-        \node [block, right=0.5cm of origin] (self) {\Large{\textbf{Self}}};
-        \draw [very thick, -stealth] (origin) -- (self);
-        \node [block, right=\gx of self] (cousin0) {Sibling};
-        \foreach \n[evaluate=\n as \m using int(\n-1)] in {1,...,5} {
-                \node [block, right=\gx of cousin\m] (cousin\n) {\nth{\n} Cousin};
+        % self
+        \node [block, right=0.5cm of origin] (u0d0) {\Large{\textbf{Self}}};
+        \draw [very thick, -stealth] (origin) -- (u0d0);
+
+        % sibling and cousins
+        \node [block, right=\gx of u0d0] (u1d1) {Sibling};
+        \foreach \x[evaluate=\x as \X using int(\x+1)] in {1,...,5} {
+                \node [block, right=\gx of u\x d\x] (u\X d\X) {\nth{\x} Cousin};
             }
 
-        \node [block, below=\gy of self] (child0) {Child};
-        \node [block, below=\gy of child0] (child1) {Grandchild};
-        \node [block, below=\gy of child1] (child2) {Great Grandchild};
-        \node [block, below=\gy of child2] (child3) {Great Great Grandchild};
-        \node [block, below=\gy of child3] (child4) {\nth{3} Great Grandchild};
-        \node [block, below=\gy of child4] (child5) {\nth{4} Great Grandchild};
-        \draw (self) -- (child0);
-        \foreach \a[evaluate=\a as \b using int(\a+1)] in {0,...,4} {
-                \draw (child\a) -- (child\b);
+        % children
+        \foreach [
+            evaluate=\i as \d using int(\i+0),
+            evaluate=\i as \D using int(\i+1),
+        ] \i in {0,...,5} {
+                \node [block, below=\gy of u0d\d] (u0d\D) {\pgfmathparse{\children[\i]}\pgfmathresult};
+                \draw (u0d\d) -- (u0d\D);
             }
 
-        \node [block, below=\gy of cousin0] (niece0) {Niece or Nephew};
-        \node [block, below=\gy of niece0] (niece1) {Grand Niece or Nephew};
-        \node [block, below=\gy of niece1] (niece2) {Great Grand Nephew};
-        \node [block, below=\gy of niece2] (niece3) {\small{Great Great Grand Niece}};
-        \node [block, below=\gy of niece3] (niece4) {\nth{3} Great Grand Nephew};
-        \draw (cousin0) -- (niece0);
-        \foreach \a[evaluate=\a as \b using int(\a+1)] in {0,...,3} {
-                \draw (niece\a) -- (niece\b);
+        % nieces / nephews
+        \foreach [
+            evaluate=\i as \d using int(\i+1),
+            evaluate=\i as \D using int(\i+2),
+        ] \i in {0,...,4} {
+                \node [block, below=\gy of u1d\d] (u1d\D) {\pgfmathparse{\nieces[\i]}\pgfmathresult};
+                \draw (u1d\d) -- (u1d\D);
             }
 
-        % nth cousins, below diagonal
-        \node [block, below=\gy of cousin1] (1c1r_) {\nth{1} Cousin once removed};
-        \node [block, below=\gy of 1c1r_] (1c2r_) {\nth{1} Cousin twice removed};
-        \node [block, below=\gy of 1c2r_] (1c3r_) {\nth{1} Cousin thrice removed};
-        \node [block, below=\gy of 1c3r_] (1c4r_) {\nth{1} Cousin 4 times removed};
+        % removed cousins
+        \node [block, below=\gy of u2d2] (u2d3) {\nth{1} Cousin once removed};
+        \node [block, below=\gy of u2d3] (u2d4) {\nth{1} Cousin twice removed};
+        \node [block, below=\gy of u2d4] (u2d5) {\nth{1} Cousin thrice removed};
+        \node [block, below=\gy of u2d5] (u2d6) {\nth{1} Cousin 4 times removed};
 
-        \node [block, below=\gy of cousin2] (2c1r_) {\nth{2} Cousin once removed};
-        \node [block, below=\gy of 2c1r_] (2c2r_) {\nth{2} Cousin twice removed};
-        \node [block, below=\gy of 2c2r_] (2c3r_) {\nth{2} Cousin thrice removed};
+        \node [block, below=\gy of u3d3] (u3d4) {\nth{2} Cousin once removed};
+        \node [block, below=\gy of u3d4] (u3d5) {\nth{2} Cousin twice removed};
+        \node [block, below=\gy of u3d5] (u3d6) {\nth{2} Cousin thrice removed};
 
-        \node [block, below=\gy of cousin3] (3c1r_) {\nth{3} Cousin once removed};
-        \node [block, below=\gy of 3c1r_] (3c2r_) {\nth{3} Cousin twice removed};
+        \node [block, below=\gy of u4d4] (u4d5) {\nth{3} Cousin once removed};
+        \node [block, below=\gy of u4d5] (u4d6) {\nth{3} Cousin twice removed};
 
-        \node [block, below=\gy of cousin4] (4c1r_) {\nth{4} Cousin once removed};
+        \node [block, below=\gy of u5d5] (u5d6) {\nth{4} Cousin once removed};
 
-        \foreach \i in {1,...,4} {
-                \draw (cousin\i) -- (\i c1r_);
-            }
-        \draw (1c1r_) -- (1c2r_); \draw (2c1r_) -- (2c2r_); \draw (3c1r_) -- (3c2r_);
-        \draw (1c2r_) -- (1c3r_); \draw (2c2r_) -- (2c3r_);
-        \draw (1c3r_) -- (1c4r_);
+        \node [block, above=\gy of u6d6] (u6d5) {\nth{4} Cousin once removed};
 
-        % nth cousins, above diagonal
-        \node [block, above=\gy of cousin2] (1c1r^) {\nth{1} Cousin once removed};
-        \node [block, above=\gy of cousin3] (2c1r^) {\nth{2} Cousin once removed};
-        \node [block, above=\gy of cousin4] (3c1r^) {\nth{3} Cousin once removed};
-        \node [block, above=\gy of cousin5] (4c1r^) {\nth{4} Cousin once removed};
+        \node [block, above=\gy of u5d5] (u5d4) {\nth{3} Cousin once removed};
+        \node [block, above=\gy of u6d5] (u6d4) {\nth{3} Cousin twice removed};
 
-        \node [block, above=\gy of 2c1r^] (1c2r^) {\nth{1} Cousin twice removed};
-        \node [block, above=\gy of 3c1r^] (2c2r^) {\nth{2} Cousin twice removed};
-        \node [block, above=\gy of 4c1r^] (3c2r^) {\nth{3} Cousin twice removed};
+        \node [block, above=\gy of u4d4] (u4d3) {\nth{2} Cousin once removed};
+        \node [block, above=\gy of u5d4] (u5d3) {\nth{2} Cousin twice removed};
+        \node [block, above=\gy of u6d4] (u6d3) {\nth{2} Cousin thrice removed};
 
-        \node [block, above=\gy of 2c2r^] (1c3r^) {\nth{1} Cousin thrice removed};
-        \node [block, above=\gy of 3c2r^] (2c3r^) {\nth{2} Cousin thrice removed};
+        \node [block, above=\gy of u3d3] (u3d2) {\nth{1} Cousin once removed};
+        \node [block, above=\gy of u4d3] (u4d2) {\nth{1} Cousin twice removed};
+        \node [block, above=\gy of u5d3] (u5d2) {\nth{1} Cousin thrice removed};
+        \node [block, above=\gy of u6d3] (u6d2) {\nth{1} Cousin 4 times removed};
 
-        \node [block, above=\gy of 2c3r^] (1c4r^) {\nth{1} Cousin 4 times removed};
-
-        \foreach \a[evaluate=\a as \b using int(\a+1)] in {1,...,4} {
-                \draw (\a c1r^) -- (cousin\b);
-            }
-        \draw (1c2r^) -- (2c1r^); \draw (2c2r^) -- (3c1r^); \draw (3c2r^) -- (4c1r^);
-        \draw (1c3r^) -- (2c2r^); \draw (2c3r^) -- (3c2r^);
-        \draw (1c4r^) -- (2c3r^);
-
+        \draw
+        (u2d2) -- (u2d3) -- (u2d4) -- (u2d5) -- (u2d6)
+        (u3d2) -- (u3d3) -- (u3d4) -- (u3d5) -- (u3d6)
+        (u4d2) -- (u4d3) -- (u4d4) -- (u4d5) -- (u4d6)
+        (u5d2) -- (u5d3) -- (u5d4) -- (u5d5) -- (u5d6)
+        (u6d2) -- (u6d3) -- (u6d4) -- (u6d5) -- (u6d6);
 
         % aunts / uncles
-        \node [block, above=\gy of cousin1] (aunt0) {Aunt or Uncle};
-        \node [block, above=\gy of 1c1r^] (aunt1) {Great Aunt or Uncle};
-        \node [block, above=\gy of 1c2r^] (aunt2) {Great Grand Uncle};
-        \node [block, above=\gy of 1c3r^] (aunt3) {\small{Great Great Grand Aunt}};
-        \node [block, above=\gy of 1c4r^] (aunt4) {\nth{3} Great Grand Uncle};
-
-        \draw (aunt0) -- (cousin1);
-        \foreach \i in {1,...,4} {
-                \draw (aunt\i) -- (1c\i r^);
+        \foreach [
+            evaluate=\i as \u using int(\i+2),
+        ] \i in {0,...,4} {
+                \node [block, above=\gy of u\u d2] (u\u d1) {\pgfmathparse{\aunts[\i]}\pgfmathresult};
+                \draw (u\u d1) -- (u\u d2);
             }
 
         % parents
-        \node [block, above=\gy of $(self.north)!0.5!(cousin0.north)$] (parent) {Parent};
-        \coordinate[above=0.3cm of $(self.north)!0.5!(cousin0.north)$] (a1);
-        \draw (parent) -- (a1);
-        \draw (a1) -| (self);
-        \draw (a1) -| (cousin0);
-
-        \node [block, above=\gy of $(parent.north)!0.5!(aunt0.north)$] (parent2) {Grand-parent};
-        \coordinate[above=0.3cm of $(parent.north)!0.5!(aunt0.north)$] (a2);
-        \draw (parent2) -- (a2);
-        \draw (a2) -| (parent);
-        \draw (a2) -| (aunt0);
-
-        \node [block, above=\gy of $(parent2.north)!0.5!(aunt1.north)$] (parent3) {Great Grandparent};
-        \coordinate[above=0.3cm of $(parent2.north)!0.5!(aunt1.north)$] (a3);
-        \draw (parent3) -- (a3);
-        \draw (a3) -| (parent2);
-        \draw (a3) -| (aunt1);
-
-        \node [block, above=\gy of $(parent3.north)!0.5!(aunt2.north)$] (parent4) {\small{Great Great Grandparent}};
-        \coordinate[above=0.3cm of $(parent3.north)!0.5!(aunt2.north)$] (a4);
-        \draw (parent4) -- (a4);
-        \draw (a4) -| (parent3);
-        \draw (a4) -| (aunt2);
-
-        \node [block, above=\gy of $(parent4.north)!0.5!(aunt3.north)$] (parent5) {\nth{3} Great Grandparent};
-        \coordinate[above=0.3cm of $(parent4.north)!0.5!(aunt3.north)$] (a5);
-        \draw (parent5) -- (a5);
-        \draw (a5) -| (parent4);
-        \draw (a5) -| (aunt3);
-
-        \node [block, above=\gy of $(parent5.north)!0.5!(aunt4.north)$] (parent6) {\nth{4} Great Grandparent};
-        \coordinate[above=0.3cm of $(parent5.north)!0.5!(aunt4.north)$] (a6);
-        \draw (parent6) -- (a6);
-        \draw (a6) -| (parent5);
-        \draw (a6) -| (aunt4);
-
-
+        \foreach [
+            evaluate=\a as \b using int(\a+1),
+        ] \a in {0,...,5} {
+                \node [block, above=\gy of $(u\a d0.north)!0.5!(u\b d1.north)$] (u\b d0) {\pgfmathparse{\parents[\a]}\pgfmathresult};
+                \coordinate [below=0.3cm of u\b d0.south] (a\a);
+                \draw (u\b d0) -- (a\a);
+                \draw (a\a) -| (u\a d0);
+                \draw (a\a) -| (u\b d1);
+            }
     \end{tikzpicture}
 \end{figure}
 \end{document}
