@@ -28,7 +28,7 @@ Here is an example of a family tree with characters from *The Simpsons*.
 ### Relationship diagram
 
 I recently discovered a photocopy of an interesting family relationship diagram.
-Since the [original diagram][2] looks less than perfect, I have [recreated it here](docs/relationship.pdf) using $\LaTeX$ (no copyright infringement is intended).
+Since the [original diagram][2] looks less than perfect, I have [recreated it here](./docs/relationship.pdf) using $\mathrm{\LaTeX}$ (no copyright infringement is intended).
 
 <!-- Link definitions -->
 
