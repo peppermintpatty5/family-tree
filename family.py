@@ -1,4 +1,5 @@
 from collections import deque
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
 
@@ -124,7 +125,7 @@ class Relationship:
 
 
 class Family:
-    def __init__(self, people: list[Person]) -> None:
+    def __init__(self, people: Iterable[Person]) -> None:
         self.members = {person.id: person for person in people}
 
     def mother(self, person: Person) -> Person | None:
@@ -160,24 +161,24 @@ class Family:
         Determine the relationship of two people by performing a breadth-first search of
         both persons' ancestors.
         """
-        if person1 is person2:
+        if person1 == person2:
             return Relationship(person1, person2, 0, 0)
 
         queue1: deque[tuple[Person, int]] = deque([(person1, 0)])
         queue2: deque[tuple[Person, int]] = deque([(person2, 0)])
-        visited: dict[str, int] = {}
+        visited: dict[Person, int] = {}
 
         while queue1 or queue2:
             if queue1:
                 a, depth = queue1.popleft()
                 mother_a, father_a = self.mother(a), self.father(a)
 
-                if mother_a is person2 or father_a is person2:
+                if person2 in (mother_a, father_a):
                     return Relationship(person1, person2, depth + 1, 0)
 
                 mother_depth, father_depth = (
-                    visited.get(mother_a.id, -1) if mother_a is not None else -1,
-                    visited.get(father_a.id, -1) if father_a is not None else -1,
+                    visited.get(mother_a, -1) if mother_a is not None else -1,
+                    visited.get(father_a, -1) if father_a is not None else -1,
                 )
                 if mother_depth >= 0 or father_depth >= 0:
                     return Relationship(
@@ -190,21 +191,21 @@ class Family:
 
                 if mother_a is not None:
                     queue1.append((mother_a, depth + 1))
-                    visited[mother_a.id] = depth + 1
+                    visited[mother_a] = depth + 1
                 if father_a is not None:
                     queue1.append((father_a, depth + 1))
-                    visited[father_a.id] = depth + 1
+                    visited[father_a] = depth + 1
 
             if queue2:
                 a, depth = queue2.popleft()
                 mother_a, father_a = self.mother(a), self.father(a)
 
-                if mother_a is person1 or father_a is person1:
+                if person1 in (mother_a, father_a):
                     return Relationship(person1, person2, 0, depth + 1)
 
                 mother_depth, father_depth = (
-                    visited.get(mother_a.id, -1) if mother_a is not None else -1,
-                    visited.get(father_a.id, -1) if father_a is not None else -1,
+                    visited.get(mother_a, -1) if mother_a is not None else -1,
+                    visited.get(father_a, -1) if father_a is not None else -1,
                 )
                 if mother_depth >= 0 or father_depth >= 0:
                     return Relationship(
@@ -217,10 +218,10 @@ class Family:
 
                 if mother_a is not None:
                     queue2.append((mother_a, depth + 1))
-                    visited[mother_a.id] = depth + 1
+                    visited[mother_a] = depth + 1
                 if father_a is not None:
                     queue2.append((father_a, depth + 1))
-                    visited[father_a.id] = depth + 1
+                    visited[father_a] = depth + 1
 
         return Relationship(person1, person2, -1, -1)
 
