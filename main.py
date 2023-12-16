@@ -29,18 +29,18 @@ def from_csv(csv_file: Iterable[str]) -> list[Person]:
 people = from_csv(sys.stdin)
 family = Family(people)
 relationships = (
-    family.relationship(person1, person2)
+    (family.relationship(person1, person2), person1, person2)
     for person1 in family.members.values()
     for person2 in family.members.values()
 )
 
-for r in relationships:
+for r, person1, person2 in relationships:
     print(
         "\t".join(
             [
-                f"{r.person1.first_name} {r.person1.last_name}",
-                f"{r.person2.first_name} {r.person2.last_name}",
-                r.label(),
+                f"{person1.first_name} {person1.last_name}",
+                f"{person2.first_name} {person2.last_name}",
+                r.label(person2.gender),
             ]
         )
     )

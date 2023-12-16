@@ -73,13 +73,11 @@ class Relationship:
     `(2, 1)`, uniquely represents the aunt/uncle relationship.
     """
 
-    person1: Person
-    person2: Person
     up: int
     down: int
     half: bool = False
 
-    def label(self) -> str:
+    def label(self, gender: Gender | None) -> str:
         R = BaseRelative  # less typing
         base_relatives_matrix = (
             (R.SELF, R.CHILD, R.GRANDCHILD),
@@ -104,7 +102,7 @@ class Relationship:
                 return f"{times} removed"
             return ""
 
-        g = self.person2.gender
+        g = gender
         match self.up, self.down:
             case (up, down) if up < 0 or down < 0:
                 label = "unrelated"
@@ -162,7 +160,7 @@ class Family:
         both persons' ancestors.
         """
         if person1 == person2:
-            return Relationship(person1, person2, 0, 0)
+            return Relationship(0, 0)
 
         queue1: deque[tuple[Person, int]] = deque([(person1, 0)])
         queue2: deque[tuple[Person, int]] = deque([(person2, 0)])
@@ -174,7 +172,7 @@ class Family:
                 mother_a, father_a = self.mother(a), self.father(a)
 
                 if person2 in (mother_a, father_a):
-                    return Relationship(person1, person2, depth + 1, 0)
+                    return Relationship(depth + 1, 0)
 
                 mother_depth, father_depth = (
                     visited.get(mother_a, -1) if mother_a is not None else -1,
@@ -182,8 +180,6 @@ class Family:
                 )
                 if mother_depth >= 0 or father_depth >= 0:
                     return Relationship(
-                        person1,
-                        person2,
                         depth + 1,
                         max(mother_depth, father_depth),
                         half=mother_depth < 0 or father_depth < 0,
@@ -201,7 +197,7 @@ class Family:
                 mother_a, father_a = self.mother(a), self.father(a)
 
                 if person1 in (mother_a, father_a):
-                    return Relationship(person1, person2, 0, depth + 1)
+                    return Relationship(0, depth + 1)
 
                 mother_depth, father_depth = (
                     visited.get(mother_a, -1) if mother_a is not None else -1,
@@ -209,8 +205,6 @@ class Family:
                 )
                 if mother_depth >= 0 or father_depth >= 0:
                     return Relationship(
-                        person1,
-                        person2,
                         max(mother_depth, father_depth),
                         depth + 1,
                         half=mother_depth < 0 or father_depth < 0,
@@ -223,7 +217,7 @@ class Family:
                     queue2.append((father_a, depth + 1))
                     visited[father_a] = depth + 1
 
-        return Relationship(person1, person2, -1, -1)
+        return Relationship(-1, -1)
 
 
 def _ordinal(n: int) -> str:
