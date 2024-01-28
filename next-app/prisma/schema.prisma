@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Person {
+  id        String @id @default(uuid())
+  firstName String
+  lastName  String
+
+  male   Male?
+  female Female?
+}
+
+model Male {
+  id     String @id @default(uuid())
+  person Person @relation(fields: [id], references: [id])
+
+  motherId String?
+  fatherId String?
+
+  mother    Female?  @relation("Mother", fields: [motherId], references: [id])
+  daughters Female[] @relation("Father")
+  father    Male?    @relation("Father", fields: [fatherId], references: [id])
+  sons      Male[]   @relation("Father")
+}
+
+model Female {
+  id     String @id @default(uuid())
+  person Person @relation(fields: [id], references: [id])
+
+  motherId String?
+  fatherId String?
+
+  father    Male?    @relation("Father", fields: [fatherId], references: [id])
+  sons      Male[]   @relation("Mother")
+  mother    Female?  @relation("Mother", fields: [motherId], references: [id])
+  daughters Female[] @relation("Mother")
+}
