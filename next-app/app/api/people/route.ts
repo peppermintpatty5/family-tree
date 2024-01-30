@@ -35,23 +35,21 @@ export async function POST(request: Request) {
   const result = await schema.safeParseAsync(json);
 
   if (result.success) {
+    type PersonArgs = Parameters<typeof prisma.male.create>[0] &
+      Parameters<typeof prisma.female.create>[0];
+
     const { gender, motherId, fatherId, firstName, lastName } = result.data;
+    const args: PersonArgs = {
+      data: {
+        father: fatherId ? { connect: { id: fatherId } } : undefined,
+        mother: motherId ? { connect: { id: motherId } } : undefined,
+        person: { create: { firstName, lastName } },
+      },
+    };
     const person =
       gender === "male"
-        ? await prisma.male.create({
-            data: {
-              father: fatherId ? { connect: { id: fatherId } } : undefined,
-              mother: motherId ? { connect: { id: motherId } } : undefined,
-              person: { create: { firstName, lastName } },
-            },
-          })
-        : await prisma.female.create({
-            data: {
-              father: fatherId ? { connect: { id: fatherId } } : undefined,
-              mother: motherId ? { connect: { id: motherId } } : undefined,
-              person: { create: { firstName, lastName } },
-            },
-          });
+        ? await prisma.male.create(args)
+        : await prisma.female.create(args);
 
     return Response.json(person, { status: 201 });
   }
