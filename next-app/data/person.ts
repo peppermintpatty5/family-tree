@@ -13,6 +13,27 @@ export interface Person {
   lastName: string;
 }
 
+export async function createPerson(
+  gender: Gender,
+  { motherId, fatherId, firstName, lastName }: Omit<Person, "id">
+): Promise<Person> {
+  type MaleArgs = Parameters<typeof prisma.male.create>[0];
+  type FemaleArgs = Parameters<typeof prisma.female.create>[0];
+
+  const args = {
+    data: {
+      father: fatherId ? { connect: { id: fatherId } } : undefined,
+      mother: motherId ? { connect: { id: motherId } } : undefined,
+      person: { create: { firstName, lastName } },
+    },
+  } satisfies MaleArgs & FemaleArgs;
+  const person = await (gender === Gender.Male
+    ? prisma.male.create(args)
+    : prisma.female.create(args));
+
+  return { ...person, firstName, lastName };
+}
+
 export async function getPerson(
   gender: Gender,
   id: string
