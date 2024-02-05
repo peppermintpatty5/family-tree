@@ -67,6 +67,32 @@ export async function getPerson(
   return null;
 }
 
+export async function updatePerson(
+  gender: Gender,
+  id: string,
+  { fatherId, motherId }: Partial<Omit<Person, "id">>
+) {
+  const updated = await prisma.male
+    .update({
+      where: { id },
+      data: {
+        father: fatherId
+          ? { connect: { id: fatherId } }
+          : fatherId === null
+          ? { disconnect: true }
+          : undefined,
+        mother: motherId
+          ? { connect: { id: motherId } }
+          : motherId === null
+          ? { disconnect: true }
+          : undefined,
+      },
+    })
+    .catch(() => null);
+
+  return updated !== null;
+}
+
 export async function deletePerson(
   gender: Gender,
   id: string

@@ -1,4 +1,5 @@
-import { Gender, deletePerson, getPerson } from "@/data/person";
+import { Gender, deletePerson, getPerson, updatePerson } from "@/data/person";
+import { z } from "zod";
 
 export async function GET(
   request: Request,
@@ -11,11 +12,33 @@ export async function GET(
     : new Response(null, { status: 404 });
 }
 
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const schema = z
+    .object({
+      motherId: z.string().nullable(),
+      fatherId: z.string().nullable(),
+      firstName: z.string(),
+      lastName: z.string(),
+    })
+    .partial()
+    .strict();
+  const json = await request.json().catch(() => null);
+  const result = await schema.safeParseAsync(json);
+  const updated =
+    result.success &&
+    (await updatePerson(Gender.Female, params.id, result.data));
+
+  return new Response(null, { status: updated ? 204 : 400 });
+}
+
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   const deleted = await deletePerson(Gender.Female, params.id);
 
-  return new Response(null, { status: deleted ? 204 : 404 });
+  return new Response(null, { status: deleted ? 204 : 400 });
 }
