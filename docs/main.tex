@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage[indent]{parskip}
+\usepackage{wasysym}
+
+
+\title{Family Trees}
+\author{Andrew Kritzler}
+
+\begin{document}
+\maketitle
+
+\section{Data Model}
+
+Suppose \(P = M \cup F\) is the set of all people where \(M\) and \(F\) are the sets of all males and females respectively.
+\(M \cap F = \varnothing{}\) since no person can be both male and female.
+The functions \(m : P \to F\) and \(f : P \to M\) map people to their mothers and fathers respectively.
+
+Take the following example of some characters from \textit{The Simpsons}, where Homer and Marge are the parents of Bart, Lisa, and Maggie:
+\[
+    \begin{aligned}
+        M & = \{\text{Homer}, \text{Bart}\},                \\
+        F & = \{\text{Marge}, \text{Lisa}, \text{Maggie}\}.
+    \end{aligned}
+\]
+Immediately there is a critical problem: who are the parents of Homer and Marge?
+In fact, this problem is unending as there will always be some person without parents regardless of how many people are added to \(P\).
+By requiring every person to have a mother and father, at least one of these seemingly impossible scenarios must be true:
+\begin{enumerate}
+    \item Infinitely many males and females have existed over the course of human history:
+          \[
+              |M| = |F| = |\mathbb{N}|.
+          \]
+    \item Human ancestry contains loops, i.e., someone is their own ancestor. Formally, following some sequence of mothers and fathers from some person \(p\) will lead back to \(p\):
+          \[
+              (\exists p \in P)
+              (
+              (\exists (\phi_1, \phi_2, \dotsc, \phi_n) \in {\{m, f\}}^n)
+              ( (\phi_1 \circ \phi_2 \circ \cdots \circ \phi_n)(p) = p)
+              ).
+          \]
+\end{enumerate}
+
+Philosophical discussion aside, let us remedy this problem by allowing loops and adding the special values \(\mathcal{A} \in M\) and \(\mathcal{E} \in F\) (to represent ``Adam and Eve'').
+Additionally, define their parents to be themselves, i.e., \(m(\mathcal{A}) = m(\mathcal{E}) = \mathcal{E}\) and \(f(\mathcal{A}) = f(\mathcal{E}) = \mathcal{A}\).
+Now the ancestry can be constructed as shown in Table~\ref{table:simpsons}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{lll}
+        \toprule
+        \(p \in P\)     & \(m(p)\)        & \(f(p)\)        \\
+        \midrule
+        \(\mathcal{A}\) & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        \(\mathcal{E}\) & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        Homer           & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        Marge           & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        Bart            & Marge           & Homer           \\
+        Lisa            & Marge           & Homer           \\
+        Maggie          & Marge           & Homer           \\
+        \bottomrule
+    \end{tabular}
+    \caption{Ancestry example of \textit{The Simpsons}}\label{table:simpsons}
+\end{table}
+
+\section{Relationships}
+
+Family relationships are defined by the nearest common ancestors.
+For example, siblings \(x\) and \(y\) have the same mother and father:
+\[
+    m(x) = m(y) \land f(x) = f(y).
+\]
+By this definition, however, Homer and Marge would be considered siblings as shown in Table~\ref{table:simpsons}.
+Since \(\mathcal{A}\) and \(\mathcal{E}\) are intended to be used as null values, let us define the following equivalence relations to specifically exclude cases like this:
+\[
+    \begin{aligned}
+        {\overset{m}{\sim}} & = \{(x, y) : m(x) = m(y) \land m(x) \neq \mathcal{E}\}, \\
+        {\overset{f}{\sim}} & = \{(x, y) : f(x) = f(y) \land f(x) \neq \mathcal{A}\}.
+    \end{aligned}
+\]
+Now the previous definition for siblings shall be redefined as:
+\[
+    x \overset{m}{\sim} y \land x \overset{f}{\sim} y.
+\]
+
+\end{document}
