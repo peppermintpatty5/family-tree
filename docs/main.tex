@@ -73,19 +73,15 @@ For example, siblings \(x\) and \(y\) have the same mother and father:
 \[
     m(x) = m(y) \land f(x) = f(y).
 \]
-By this definition, however, Homer and Marge would be considered siblings as shown in Table~\ref{table:simpsons}.
-Since \(\mathcal{A}\) and \(\mathcal{E}\) are meant as null values, let us define the following equivalence relations on \(P\) to be more specific when comparing parents:
+By this definition, however, Homer and Marge would mistakenly be considered siblings as shown in Table~\ref{table:simpsons}.
+Since \(\mathcal{A}\) and \(\mathcal{E}\) are meant as null values, let us define the equivalence relations \({\sim_m}\), \({\sim_f}\), and \({\sim}\) on \(P\) that check for two people having the same, \textit{not-null} mother and father:
 \[
     \begin{aligned}
-        {\overset{m}{\sim}} & = \{(x, y) \mid x = y \lor (m(x) = m(y) \land m(x) \neq \mathcal{E})\}, \\
-        {\overset{f}{\sim}} & = \{(x, y) \mid x = y \lor (f(x) = f(y) \land f(x) \neq \mathcal{A})\}, \\
-        {\sim}              & = {\overset{m}{\sim}} \cap {\overset{f}{\sim}}.
+        {\sim_m} & = \{(x, y) \mid x = y \lor (m(x) = m(y) \land m(x) \neq \mathcal{E})\}, \\
+        {\sim_f} & = \{(x, y) \mid x = y \lor (f(x) = f(y) \land f(x) \neq \mathcal{A})\}, \\
+        {\sim}   & = \{(x, y) \mid x \sim_m y \land x \sim_f y\}.
     \end{aligned}
 \]
-Now the previous definition for siblings can be redefined as \(x \sim y\); thus, \(\text{Bart} \sim \text{Lisa}\) and \(\text{Homer} \nsim \text{Marge}\).
-For half-siblings, where only one parent is the same, the definition is:
-\[
-    x \overset{m}{\sim} y \oplus x \overset{f}{\sim} y.
-\]
+Now the previous definition for siblings can be redefined as \(x \sim y\), giving the expected result of \(\text{Bart} \sim \text{Lisa} \sim \text{Maggie}\) and \(\text{Homer} \nsim \text{Marge}\).
 
 \end{document}
