@@ -1,6 +1,7 @@
 \documentclass[letterpaper]{article}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{array}
 \usepackage{booktabs}
 \usepackage[T1]{fontenc}
 \usepackage[indent]{parskip}
@@ -50,7 +51,7 @@ Now the ancestry can be constructed as shown in Table~\ref{table:simpsons}.
 
 \begin{table}
     \centering
-    \begin{tabular}{lll}
+    \begin{tabular}{*{3}{m{5em}}}
         \toprule
         \(p \in P\)     & \(m(p)\)        & \(f(p)\)        \\
         \midrule
