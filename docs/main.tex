@@ -5,7 +5,6 @@
 \usepackage{booktabs}
 \usepackage[T1]{fontenc}
 \usepackage[indent]{parskip}
-\usepackage{wasysym}
 
 
 \title{Family Trees}
@@ -16,20 +15,21 @@
 
 \section{Data Model}
 
-Suppose \(P = M \cup F\) is the set of all people where \(M\) and \(F\) are the sets of all males and females respectively.
+Define \(P = M \cup F\) to be the set of all people where \(M\) and \(F\) are the sets of all males and females respectively.
 \(M \cap F = \varnothing{}\) since no person can be both male and female.
 The functions \(m : P \to F\) and \(f : P \to M\) map people to their mothers and fathers respectively.
+Repeated compositions of \(m\) and \(f\) denote various ancestors, e.g., \(m \circ f\) reads as ``mother of father''.
 
-Take the following example of some characters from \textit{The Simpsons}, where Homer and Marge are the parents of Bart, Lisa, and Maggie:
-\[
-    \begin{aligned}
-        M & = \{\text{Homer}, \text{Bart}\},                \\
-        F & = \{\text{Marge}, \text{Lisa}, \text{Maggie}\}.
-    \end{aligned}
-\]
-Immediately there is a critical problem: who are the parents of Homer and Marge?
-In fact, this problem is unending as there will always be some person without parents regardless of how many people are added to \(P\).
-By requiring every person to have a mother and father, one or both of these ridiculous scenarios must be true:
+Take the following example of some characters from \textit{The Simpsons}:
+\begin{align*}
+    M & = \{\text{Abe}, \text{Bart}, \text{Clancy}, \text{Herb}, \text{Homer}\},                                                 \\
+    F & = \{\text{Gaby}, \text{Jacqueline}, \text{Lisa}, \text{Maggie}, \text{Marge}, \text{Mona}, \text{Patty}, \text{Selma}\}.
+\end{align*}
+Immediately there is a problem of undefined values for \(m\) and \(f\).
+Who are the parents of Abe ``Grampa'' Simpson?
+And who are their parents, \dots?
+The assumption that every person has a mother and father creates the same dilemma at the chicken and the egg.
+If we believe this assumption to be true, then one (or both) of the following impossible conclusions would result:
 \begin{enumerate}
     \item Infinitely many males and females have existed over the course of human history:
           \[
@@ -57,11 +57,19 @@ Now the ancestry can be constructed as shown in Table~\ref{table:simpsons}.
         \midrule
         \(\mathcal{A}\) & \(\mathcal{E}\) & \(\mathcal{A}\) \\
         \(\mathcal{E}\) & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Homer           & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Marge           & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        Abe             & \(\mathcal{E}\) & \(\mathcal{A}\) \\
         Bart            & Marge           & Homer           \\
+        Clancy          & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        Gaby            & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        Herb            & Gaby            & Abe             \\
+        Homer           & Mona            & Abe             \\
+        Jacqueline      & \(\mathcal{E}\) & \(\mathcal{A}\) \\
         Lisa            & Marge           & Homer           \\
         Maggie          & Marge           & Homer           \\
+        Marge           & Jacqueline      & Clancy          \\
+        Mona            & \(\mathcal{E}\) & \(\mathcal{A}\) \\
+        Patty           & Jacqueline      & Clancy          \\
+        Selma           & Jacqueline      & Clancy          \\
         \bottomrule
     \end{tabular}
     \caption{Ancestry example of \textit{The Simpsons}}\label{table:simpsons}
@@ -74,15 +82,22 @@ For example, siblings \(x\) and \(y\) have the same mother and father:
 \[
     m(x) = m(y) \land f(x) = f(y).
 \]
-By this definition, however, Homer and Marge would mistakenly be considered siblings as shown in Table~\ref{table:simpsons}.
+By this definition, however, Abe and Mona would mistakenly be considered siblings as shown in Table~\ref{table:simpsons}.
 Since \(\mathcal{A}\) and \(\mathcal{E}\) are meant as null values, let us define the equivalence relations \({\sim_m}\), \({\sim_f}\), and \({\sim}\) on \(P\) that check for two people having the same, \textit{not-null} mother and father:
-\[
-    \begin{aligned}
-        {\sim_m} & = \{(x, y) \mid x = y \lor (m(x) = m(y) \land m(x) \neq \mathcal{E})\}, \\
-        {\sim_f} & = \{(x, y) \mid x = y \lor (f(x) = f(y) \land f(x) \neq \mathcal{A})\}, \\
-        {\sim}   & = \{(x, y) \mid x \sim_m y \land x \sim_f y\}.
-    \end{aligned}
-\]
-Now the previous definition for siblings can be redefined as \(x \sim y\), giving the expected result of \(\text{Bart} \sim \text{Lisa} \sim \text{Maggie}\) and \(\text{Homer} \nsim \text{Marge}\).
+\begin{align*}
+    {\sim_m} & = \{(x, y) \mid x = y \lor (m(x) = m(y) \land m(x) \neq \mathcal{E})\}, \\
+    {\sim_f} & = \{(x, y) \mid x = y \lor (f(x) = f(y) \land f(x) \neq \mathcal{A})\}, \\
+    {\sim}   & = \{(x, y) \mid x \sim_m y \land x \sim_f y\}.
+\end{align*}
+Now the previous definition for siblings can be corrected to \(x \sim y\), giving the expected result of \(\text{Bart} \sim \text{Lisa} \sim \text{Maggie}\) and \(\text{Abe} \nsim \text{Mona}\).
+
+Reflexivity, along with symmetry and transitivity, is one of the three properties of equivalence relations.
+It requires that \((\forall x \in P)(x \sim x)\).
+This idea of every person being their own sibling may seem strange but should make sense when considering equivalence classes.
+For example:
+\begin{align*}
+    [\text{Bart}] & = \{x \in P \mid \text{Bart} \sim x\}          \\
+                  & = \{\text{Bart}, \text{Lisa}, \text{Maggie}\}.
+\end{align*}
 
 \end{document}
