@@ -127,6 +127,25 @@ class Relationship:
 class Family:
     def __init__(self, people: Iterable[Person]) -> None:
         self.members = {person.id: person for person in people}
+        self.M = {(person, person): 0 for person in people}
+
+        queue = deque((person, person) for person in people)
+        while queue:
+            x, y = queue.popleft()
+            distance = self.M[x, y]
+            mother_y, father_y = self.mother(y), self.father(y)
+
+            if x in (mother_y, father_y):
+                raise ValueError(f"Loop detected on {x}")
+
+            if mother_y is not None:
+                self.M[x, mother_y] = distance + 1
+                self.M[mother_y, x] = -(distance + 1)
+                queue.append((x, mother_y))
+            if father_y is not None:
+                self.M[x, father_y] = distance + 1
+                self.M[father_y, x] = -(distance + 1)
+                queue.append((x, father_y))
 
     def mother(self, person: Person) -> Person | None:
         """
@@ -164,60 +183,21 @@ class Family:
         if person1 == person2:
             return Relationship(0, 0)
 
-        queue1: deque[tuple[Person, int]] = deque([(person1, 0)])
-        queue2: deque[tuple[Person, int]] = deque([(person2, 0)])
-        visited: dict[Person, int] = {}
+        distance = self.M.get((person1, person2), 0)
+        mother_p2, father_p2 = self.mother(person2), self.father(person2)
 
-        while queue1 or queue2:
-            if queue1:
-                a, depth = queue1.popleft()
-                mother_a, father_a = self.mother(a), self.father(a)
-
-                if person2 in (mother_a, father_a):
-                    return Relationship(depth + 1, 0)
-
-                mother_depth, father_depth = (
-                    visited.get(mother_a, -1) if mother_a is not None else -1,
-                    visited.get(father_a, -1) if father_a is not None else -1,
-                )
-                if mother_depth >= 0 or father_depth >= 0:
-                    return Relationship(
-                        depth + 1,
-                        max(mother_depth, father_depth),
-                        half=mother_depth < 0 or father_depth < 0,
-                    )
-
-                if mother_a is not None:
-                    queue1.append((mother_a, depth + 1))
-                    visited[mother_a] = depth + 1
-                if father_a is not None:
-                    queue1.append((father_a, depth + 1))
-                    visited[father_a] = depth + 1
-
-            if queue2:
-                a, depth = queue2.popleft()
-                mother_a, father_a = self.mother(a), self.father(a)
-
-                if person1 in (mother_a, father_a):
-                    return Relationship(0, depth + 1)
-
-                mother_depth, father_depth = (
-                    visited.get(mother_a, -1) if mother_a is not None else -1,
-                    visited.get(father_a, -1) if father_a is not None else -1,
-                )
-                if mother_depth >= 0 or father_depth >= 0:
-                    return Relationship(
-                        max(mother_depth, father_depth),
-                        depth + 1,
-                        half=mother_depth < 0 or father_depth < 0,
-                    )
-
-                if mother_a is not None:
-                    queue2.append((mother_a, depth + 1))
-                    visited[mother_a] = depth + 1
-                if father_a is not None:
-                    queue2.append((father_a, depth + 1))
-                    visited[father_a] = depth + 1
+        if distance > 0:
+            return Relationship(distance, 0)
+        if distance < 0:
+            return Relationship(0, abs(distance))
+        if mother_p2 is not None:
+            r = self.relationship(person1, mother_p2)
+            if (r.up, r.down) != (-1, -1):
+                return Relationship(r.up, r.down + 1)
+        if father_p2 is not None:
+            r = self.relationship(person1, father_p2)
+            if (r.up, r.down) != (-1, -1):
+                return Relationship(r.up, r.down + 1)
 
         return Relationship(-1, -1)
 
