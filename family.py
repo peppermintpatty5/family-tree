@@ -54,9 +54,11 @@ class BaseRelative(Enum):
         label = (
             male or neutral
             if gender is Gender.MALE
-            else female or neutral
-            if gender is Gender.FEMALE
-            else neutral or f"{female} or {male}"
+            else (
+                female or neutral
+                if gender is Gender.FEMALE
+                else neutral or f"{female} or {male}"
+            )
         )
         assert label is not None
         return label
@@ -89,11 +91,11 @@ class Relationship:
             return (
                 ""
                 if n <= 0
-                else "great"
-                if n == 1
-                else "great great"
-                if n == 2
-                else f"{(_ordinal(n))} great"
+                else (
+                    "great"
+                    if n == 1
+                    else "great great" if n == 2 else f"{(_ordinal(n))} great"
+                )
             )
 
         def removed(n: int) -> str:
