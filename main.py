@@ -40,7 +40,7 @@ for r, person1, person2 in relationships:
             [
                 f"{person1.first_name} {person1.last_name}",
                 f"{person2.first_name} {person2.last_name}",
-                r.label(person2.gender),
+                r.label(person2.gender) if r is not None else "unrelated",
             ]
         )
     )

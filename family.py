@@ -175,7 +175,7 @@ class Family:
             if mother is not None
         )
 
-    def relationship(self, person1: Person, person2: Person) -> Relationship:
+    def relationship(self, person1: Person, person2: Person) -> Relationship | None:
         """
         Determine the relationship of two people by performing a breadth-first search of
         both persons' ancestors.
@@ -190,16 +190,14 @@ class Family:
             return Relationship(distance, 0)
         if distance < 0:
             return Relationship(0, abs(distance))
-        if mother_p2 is not None:
-            r = self.relationship(person1, mother_p2)
-            if (r.up, r.down) != (-1, -1):
-                return Relationship(r.up, r.down + 1)
-        if father_p2 is not None:
-            r = self.relationship(person1, father_p2)
-            if (r.up, r.down) != (-1, -1):
-                return Relationship(r.up, r.down + 1)
 
-        return Relationship(-1, -1)
+        rm = self.relationship(person1, mother_p2) if mother_p2 is not None else None
+        rf = self.relationship(person1, father_p2) if father_p2 is not None else None
+
+        if rm is not None:
+            return Relationship(rm.up, rm.down + 1, half=rf is None)
+        if rf is not None:
+            return Relationship(rf.up, rf.down + 1, half=rm is None)
 
 
 def _ordinal(n: int) -> str:
