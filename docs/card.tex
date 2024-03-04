@@ -1,0 +1,70 @@
+\documentclass[]{article}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usepackage{wasysym}
+
+\usetikzlibrary{
+    arrows,
+    matrix,
+    positioning,
+    shapes.geometric,
+    shapes.misc,
+    shapes.symbols,
+}
+
+\newcommand*{\badgeFemale}[1]{
+    \tikz[anchor=base, baseline]
+    \node[
+        rounded rectangle, draw, very thick,
+        text width=6em, minimum height=4ex, align=center,
+        white, fill=magenta, double=magenta, very thick
+    ] {\tt\large \raisebox{0.3ex}{\female}~#1};
+}
+\newcommand*{\badgeMale}[1]{
+    \tikz[anchor=base, baseline]
+    \node[
+        signal, draw, signal to=west and east,
+        text width=5em, minimum height=4ex, align=center,
+        white, fill=blue, double=blue, very thick
+    ] {\tt\large \raisebox{-0.1ex}{\male}~#1};
+}
+\newcommand*{\slotFemale}[1]{
+    \tikz[anchor=base, baseline]
+    \node[
+        rounded rectangle, draw, very thick,
+        text width=6em, minimum height=4ex, align=center,
+        magenta, very thick, dashed
+    ] {\tt\large \raisebox{0.3ex}{\female}~#1};
+}
+\newcommand*{\slotMale}[1]{
+    \tikz[anchor=base, baseline]
+    \node[
+        signal, draw, signal to=west and east,
+        text width=5em, minimum height=4ex, align=center,
+        blue, very thick, dashed
+    ] {\tt\large \raisebox{-0.1ex}{\male}~#1};
+}
+
+
+\begin{document}
+
+\begin{table}
+    \centering
+    \begin{tabularx}{\textwidth}{*{4}{X}}
+        \multicolumn{4}{l}{
+            \makecell[l]{
+        {\small \textbf{Name:}}                                                     \\
+                \tikz[anchor=base, baseline] \node[rectangle, draw, minimum width=\textwidth, minimum height=4ex] {};
+            }
+        }
+        \\ \addlinespace[1ex]
+        \multicolumn{2}{l}{\textbf{Mother:}~\slotFemale{\#{}\#{}\#{}\#{}\#{}\#{}}}
+         & \multicolumn{2}{l}{\textbf{Father:}~\slotMale{\#{}\#{}\#{}\#{}\#{}\#{}}}
+        \\
+    \end{tabularx}
+\end{table}
+
+\end{document}
