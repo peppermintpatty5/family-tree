@@ -1,10 +1,12 @@
-\documentclass[letterpaper]{article}
+\documentclass[letterpaper,11pt]{article}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{array}
 \usepackage{booktabs}
+\usepackage[labelfont=bf]{caption}
 \usepackage[T1]{fontenc}
 \usepackage[indent]{parskip}
+\usepackage{wasysym}
 
 
 \title{Family Trees}
@@ -15,70 +17,61 @@
 
 \section{Data Model}
 
-Define \(P = M \cup F\) to be the set of all people where \(M\) and \(F\) are the sets of all males and females respectively.
-\(M \cap F = \varnothing{}\) since no person can be both male and female.
-The functions \(m : P \to F\) and \(f : P \to M\) map people to their mothers and fathers respectively.
-Repeated compositions of \(m\) and \(f\) denote various ancestors, e.g., \(m \circ f\) reads as ``mother of father''.
-
-Take the following example of some characters from \textit{The Simpsons}:
+Define the set of all people \(P = \male \cup \female\) to be the union of all males and females such that \(\male \cap \female = \varnothing\).
+The functions \(f : P \to \male\) and \(m : P \to \female\) shall map people to their fathers and mothers respectively.
+Table~\ref{table:simpsons} shows an example using the following characters from \textit{The Simpsons}:
 \begin{align*}
-    M & = \{\text{Abe}, \text{Bart}, \text{Clancy}, \text{Herb}, \text{Homer}\},                                                 \\
-    F & = \{\text{Gaby}, \text{Jacqueline}, \text{Lisa}, \text{Maggie}, \text{Marge}, \text{Mona}, \text{Patty}, \text{Selma}\}.
+    \male   & = \{\text{Abe}, \text{Bart}, \text{Clancy}, \text{Herb}, \text{Homer}\},                                \\
+    \female & = \{\text{Jackie}, \text{Lisa}, \text{Maggie}, \text{Marge}, \text{Mona}, \text{Patty}, \text{Selma}\}.
 \end{align*}
-Immediately there is a problem of undefined values for \(m\) and \(f\).
-Who are the parents of Abe ``Grampa'' Simpson?
-And who are their parents, \dots?
-The assumption that every person has a mother and father creates the same dilemma at the chicken and the egg.
-If we believe this assumption to be true, then one (or both) of the following impossible conclusions would result:
-\begin{enumerate}
-    \item Infinitely many males and females have existed over the course of human history:
-          \[
-              |M| = |F| = |\mathbb{N}|.
-          \]
-    \item Human ancestry contains loops, i.e., someone is their own ancestor. Formally, following some sequence of mothers and fathers from some person \(p\) will lead back to \(p\):
-          \[
-              (\exists p \in P)
-              (
-              (\exists (\phi_1, \phi_2, \dotsc, \phi_n) \in {\{m, f\}}^n)
-              ( (\phi_1 \circ \phi_2 \circ \cdots \circ \phi_n)(p) = p)
-              ).
-          \]
-\end{enumerate}
 
-Philosophical discussion aside, let us remedy this problem by allowing loops and adding the special values \(\mathcal{A} \in M\) and \(\mathcal{E} \in F\) (to represent ``Adam and Eve'').
-Additionally, define their parents to be themselves, i.e., \(m(\mathcal{A}) = m(\mathcal{E}) = \mathcal{E}\) and \(f(\mathcal{A}) = f(\mathcal{E}) = \mathcal{A}\).
-Now the ancestry can be constructed as shown in Table~\ref{table:simpsons}.
+In practice there will always be someone with an unknown mother or father.
+However, our model requires \(f\) and \(m\) to be defined for all values of \(P\).
+To correct this problem let's introduce special ``Adam and Eve'' values \(\mathcal{A} \in \male\) and \(\mathcal{E} \in \female\) where:
+\begin{align*}
+    \mathcal{A} & = f(\mathcal{A}) = f(\mathcal{E}), \\
+    \mathcal{E} & = m(\mathcal{A}) = m(\mathcal{E}).
+\end{align*}
 
 \begin{table}
     \centering
-    \begin{tabular}{*{3}{m{5em}}}
+    \begin{tabular}{*{4}{l}}
         \toprule
-        \(p \in P\)     & \(m(p)\)        & \(f(p)\)        \\
+        \(p \in P\) & \(f(p)\)        & \(m(p)\)        & \(\alpha(p)\)                                                                             \\
         \midrule
-        \(\mathcal{A}\) & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        \(\mathcal{E}\) & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Abe             & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Bart            & Marge           & Homer           \\
-        Clancy          & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Gaby            & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Herb            & Gaby            & Abe             \\
-        Homer           & Mona            & Abe             \\
-        Jacqueline      & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Lisa            & Marge           & Homer           \\
-        Maggie          & Marge           & Homer           \\
-        Marge           & Jacqueline      & Clancy          \\
-        Mona            & \(\mathcal{E}\) & \(\mathcal{A}\) \\
-        Patty           & Jacqueline      & Clancy          \\
-        Selma           & Jacqueline      & Clancy          \\
+        Abe         & \(\mathcal{A}\) & \(\mathcal{E}\) & \(\varnothing\)                                                                           \\
+        Bart        & Homer           & Marge           & \(\{\text{Homer}, \text{Marge}, \text{Abe}, \text{Mona}, \text{Clancy}, \text{Jackie}\}\) \\
+        Clancy      & \(\mathcal{A}\) & \(\mathcal{E}\) & \(\varnothing\)                                                                           \\
+        Herb        & Abe             & \(\mathcal{E}\) & \(\{\text{Abe}\}\)                                                                        \\
+        Homer       & Abe             & Mona            & \(\{\text{Abe}, \text{Mona}\}\)                                                           \\
+        Jackie      & \(\mathcal{A}\) & \(\mathcal{E}\) & \(\varnothing\)                                                                           \\
+        Lisa        & Homer           & Marge           & \(\{\text{Homer}, \text{Marge}, \text{Abe}, \text{Mona}, \text{Clancy}, \text{Jackie}\}\) \\
+        Maggie      & Homer           & Marge           & \(\{\text{Homer}, \text{Marge}, \text{Abe}, \text{Mona}, \text{Clancy}, \text{Jackie}\}\) \\
+        Marge       & Clancy          & Jackie          & \(\{\text{Clancy}, \text{Jackie}\}\)                                                      \\
+        Mona        & \(\mathcal{A}\) & \(\mathcal{E}\) & \(\varnothing\)                                                                           \\
+        Patty       & Clancy          & Jackie          & \(\{\text{Clancy}, \text{Jackie}\}\)                                                      \\
+        Selma       & Clancy          & Jackie          & \(\{\text{Clancy}, \text{Jackie}\}\)                                                      \\
         \bottomrule
     \end{tabular}
     \caption{Ancestry example of \textit{The Simpsons}}\label{table:simpsons}
 \end{table}
 
-\section{Relationships}
+\section{Genetic relationships}
 
-Family relationships are defined by the nearest common ancestors.
-For example, siblings \(x\) and \(y\) have the same mother and father:
+Let \(\alpha : P \to \mathcal{P}(P)\):
+\[
+    \alpha(p) = \begin{cases}
+        \varnothing                                                                                 & p \in \{\mathcal{A}, \mathcal{E}\}    \\
+        (\{f(p), m(p)\} \setminus \{\mathcal{A}, \mathcal{E}\}) \cup \alpha(m(p)) \cup \alpha(f(p)) & p \notin \{\mathcal{A}, \mathcal{E}\}
+    \end{cases}
+\]
+
+Genetic relationships are defined by common ancestors.
+Bart, Lisa, and Maggie are related to Aunt Patty and Selma by Marge's parents.
+This (2, 1) pattern of going two generations up and one generation down uniquely defines the uncle/aunt relationship.
+Uncle Herb is similarly related by Homer's father, making him their half-uncle.
+
+siblings \(x\) and \(y\) have the same mother and father:
 \[
     m(x) = m(y) \land f(x) = f(y).
 \]
@@ -91,13 +84,5 @@ Since \(\mathcal{A}\) and \(\mathcal{E}\) are meant as null values, let us defin
 \end{align*}
 Now the previous definition for siblings can be corrected to \(x \sim y\), giving the expected result of \(\text{Bart} \sim \text{Lisa} \sim \text{Maggie}\) and \(\text{Abe} \nsim \text{Mona}\).
 
-Reflexivity, along with symmetry and transitivity, is one of the three properties of equivalence relations.
-It requires that \((\forall x \in P)(x \sim x)\).
-This idea of every person being their own sibling may seem strange but should make sense when considering equivalence classes.
-For example:
-\begin{align*}
-    [\text{Bart}] & = \{x \in P \mid \text{Bart} \sim x\}          \\
-                  & = \{\text{Bart}, \text{Lisa}, \text{Maggie}\}.
-\end{align*}
 
 \end{document}
